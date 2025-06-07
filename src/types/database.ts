@@ -3,6 +3,15 @@ export interface Envelope {
   name: string
   amount: number
   created_at: string
+  archived: boolean
+}
+
+export interface Expense {
+  id: string
+  created_at: string
+  date: string
+  amount: number
+  envelope_id: string
 }
 
 export interface Database {
@@ -12,6 +21,11 @@ export interface Database {
         Row: Envelope
         Insert: Omit<Envelope, 'id' | 'created_at'>
         Update: Partial<Omit<Envelope, 'id' | 'created_at'>>
+      }
+      expenses: {
+        Row: Expense
+        Insert: Omit<Expense, 'id' | 'created_at'>
+        Update: Partial<Omit<Expense, 'id' | 'created_at'>>
       }
     }
   }

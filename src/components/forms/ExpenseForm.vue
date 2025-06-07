@@ -1,11 +1,11 @@
 <template>
   <form @submit.prevent="handleSubmit" class="bg-white shadow-md rounded-lg p-6">
     <div class="space-y-4">
-      <InputText v-model="form.name" required placeholder="Nom de la dépense">
+      <InputText v-model="formValues.name" required placeholder="Nom de la dépense">
         <template #label>Nom de la dépense</template>
       </InputText>
 
-      <InputNumber v-model="form.amount" required :min="0" :step="0.01" placeholder="Montant">
+      <InputNumber v-model="formValues.amount" required :min="0" :step="0.01" placeholder="Montant">
         <template #label>Montant</template>
       </InputNumber>
 
@@ -24,8 +24,9 @@ import { supabase } from '../../utils/supabase'
 import InputText from '../ui/InputText.vue'
 import InputNumber from '../ui/InputNumber.vue'
 import ButtonSubmit from '../ui/ButtonSubmit.vue'
+import type { Insert } from '@/types/database'
 
-interface Form {
+interface FormValues {
   name: string
   amount: string
 }
@@ -34,7 +35,7 @@ const router = useRouter()
 const isLoading = ref(false)
 const error = ref('')
 
-const form = reactive<Form>({
+const formValues = reactive<FormValues>({
   name: '',
   amount: '',
 })
@@ -43,17 +44,11 @@ const handleSubmit = async () => {
   try {
     isLoading.value = true
     error.value = ''
-
-    const { data, error: supabaseError } = await supabase
-      .from('expenses')
-      .insert([
-        {
-          name: form.name,
-          amount: parseFloat(form.amount),
-          created_at: new Date().toISOString(),
-        },
-      ])
-      .select()
+    const values: Insert<'envelopes'> = {
+      name: formValues.name,
+      amount: parseFloat(formValues.amount),
+    }
+    const { data, error: supabaseError } = await supabase.from('expenses').insert([values]).select()
 
     if (supabaseError) throw supabaseError
 

@@ -22,6 +22,13 @@ import { RouterLink, RouterView } from 'vue-router'
             >
               Ajouter une dépense
             </RouterLink>
+            <RouterLink
+              to="/add-envelope"
+              class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+              active-class="bg-gray-100 text-gray-900"
+            >
+              Ajouter une enveloppe
+            </RouterLink>
           </div>
         </div>
       </nav>

@@ -14,6 +14,11 @@ const router = createRouter({
       name: 'add-expense',
       component: () => import('../views/AddExpenseView.vue'),
     },
+    {
+      path: '/add-envelope',
+      name: 'add-envelope',
+      component: () => import('../views/AddEnvelopeView.vue'),
+    },
   ],
 })
 

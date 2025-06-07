@@ -7,6 +7,7 @@
           <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Montant</label>
           <input
             type="number"
+            step="0.01"
             id="amount"
             v-model="form.amount"
             placeholder="Montant"

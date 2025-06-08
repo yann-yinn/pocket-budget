@@ -9,7 +9,7 @@
         <template #label>Montant</template>
       </InputNumber>
 
-      <ButtonSubmit :loading="isLoading" />
+      <ButtonSubmit :loading="insertRequestState === RequestState.Pending" />
     </div>
   </form>
   <FormError :error="error" />
@@ -17,22 +17,26 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { supabase } from '../../utils/supabase'
 import InputText from '../ui/InputText.vue'
 import InputNumber from '../ui/InputNumber.vue'
 import ButtonSubmit from '../ui/ButtonSubmit.vue'
 import FormError from '../ui/FormError.vue'
-import type { TablesInsert } from '@/types/supabase.types'
+import { insertEnvelope } from '@/services/envelopes'
 
 interface FormValues {
   name: string
   amount: string
 }
 
-const router = useRouter()
-const isLoading = ref(false)
+enum RequestState {
+  Idle = 'idle',
+  Pending = 'pending',
+  Success = 'success',
+  Error = 'error',
+}
+
 const error = ref('')
+const insertRequestState = ref<RequestState>(RequestState.Idle)
 
 const formValues = reactive<FormValues>({
   name: '',
@@ -47,33 +51,25 @@ function prepareValuesForSave(formValues: FormValues) {
   return values
 }
 
-async function insertEnvelope(values: TablesInsert<'envelopes'>) {
-  const result = await supabase.from('envelopes').insert([values]).select()
-  return result
-}
-
 const handleSubmit = async () => {
   const values = prepareValuesForSave(formValues)
   try {
+    insertRequestState.value = RequestState.Pending
     error.value = ''
-    isLoading.value = true
 
     const result = await insertEnvelope(values)
 
-    console.log('result', result)
-    if (result.error) throw error
-
     if (result.data && result.data.length > 0) {
-      console.log('Enveloppe créée:', result.data[0])
-      router.push('/')
+      const newEnvelope = result.data[0]
+      console.log('Enveloppe créée:', newEnvelope)
+      insertRequestState.value = RequestState.Success
     } else {
       throw new Error('Aucune donnée retournée')
     }
   } catch (err) {
+    insertRequestState.value = RequestState.Error
     console.error("Erreur lors de l'ajout de l'enveloppe:", err)
     error.value = "Une erreur est survenue lors de l'enregistrement de l'enveloppe"
-  } finally {
-    isLoading.value = false
   }
 }
 </script>

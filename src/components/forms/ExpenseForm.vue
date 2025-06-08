@@ -44,7 +44,7 @@ const handleSubmit = async () => {
   try {
     isLoading.value = true
     error.value = ''
-    const values: Insert<'envelopes'> = {
+    const values: Insert<'expenses'> = {
       name: formValues.name,
       amount: parseFloat(formValues.amount),
     }

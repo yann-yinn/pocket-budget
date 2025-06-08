@@ -1,20 +1,18 @@
 <template>
   <form @submit.prevent="handleSubmit" class="bg-white shadow-md rounded-lg p-6">
     <div class="space-y-4">
-      <InputText v-model="form.name" required placeholder="Nom de l'enveloppe">
+      <InputText v-model="formValues.name" required placeholder="Nom de l'enveloppe">
         <template #label>Nom de l'enveloppe</template>
       </InputText>
 
-      <InputNumber v-model="form.amount" required :min="0" :step="0.01" placeholder="Montant">
+      <InputNumber v-model="formValues.amount" required :min="0" :step="0.01" placeholder="Montant">
         <template #label>Montant</template>
       </InputNumber>
 
       <ButtonSubmit :loading="isLoading" />
     </div>
   </form>
-  <div v-if="error" class="mt-4 p-4 bg-red-100 text-red-700 rounded-md">
-    {{ error }}
-  </div>
+  <FormError :error="error" />
 </template>
 
 <script setup lang="ts">
@@ -24,8 +22,10 @@ import { supabase } from '../../utils/supabase'
 import InputText from '../ui/InputText.vue'
 import InputNumber from '../ui/InputNumber.vue'
 import ButtonSubmit from '../ui/ButtonSubmit.vue'
+import FormError from '../ui/FormError.vue'
+import type { TablesInsert } from '@/types/supabase.types'
 
-interface Form {
+interface FormValues {
   name: string
   amount: string
 }
@@ -34,31 +34,37 @@ const router = useRouter()
 const isLoading = ref(false)
 const error = ref('')
 
-const form = reactive<Form>({
+const formValues = reactive<FormValues>({
   name: '',
   amount: '',
 })
 
+function prepareValuesForSave(formValues: FormValues) {
+  const values = {
+    name: formValues.name,
+    amount: parseFloat(formValues.amount),
+  }
+  return values
+}
+
+async function insertEnvelope(values: TablesInsert<'envelopes'>) {
+  const result = await supabase.from('envelopes').insert([values]).select()
+  return result
+}
+
 const handleSubmit = async () => {
+  const values = prepareValuesForSave(formValues)
   try {
-    isLoading.value = true
     error.value = ''
+    isLoading.value = true
 
-    const { data, error: supabaseError } = await supabase
-      .from('envelopes')
-      .insert([
-        {
-          name: form.name,
-          amount: parseFloat(form.amount),
-          created_at: new Date().toISOString(),
-        },
-      ])
-      .select()
+    const result = await insertEnvelope(values)
 
-    if (supabaseError) throw supabaseError
+    console.log('result', result)
+    if (result.error) throw error
 
-    if (data && data.length > 0) {
-      console.log('Enveloppe créée:', data[0])
+    if (result.data && result.data.length > 0) {
+      console.log('Enveloppe créée:', result.data[0])
       router.push('/')
     } else {
       throw new Error('Aucune donnée retournée')

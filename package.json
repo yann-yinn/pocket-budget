@@ -12,7 +12,8 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "supabase-generate-types": "dotenv -e .env.local -- sh -c 'supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" --schema public > src/types/supabase.types.ts'"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.0",
@@ -33,6 +34,7 @@
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.7.0",
     "autoprefixer": "^10.4.21",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^9.22.0",
     "eslint-plugin-playwright": "^2.2.0",
     "eslint-plugin-vue": "~10.0.0",
@@ -41,6 +43,7 @@
     "npm-run-all2": "^7.0.2",
     "postcss": "^8.5.4",
     "prettier": "3.5.3",
+    "supabase": "^2.24.3",
     "tailwindcss": "^4.1.8",
     "typescript": "~5.8.0",
     "vite": "^6.2.4",

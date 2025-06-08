@@ -9,67 +9,51 @@
         <template #label>Montant</template>
       </InputNumber>
 
-      <ButtonSubmit :loading="insertRequestState === RequestState.Pending" />
+      <ButtonSubmit :loading="loading" />
     </div>
   </form>
   <FormError :error="error" />
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-import InputText from '../ui/InputText.vue'
-import InputNumber from '../ui/InputNumber.vue'
-import ButtonSubmit from '../ui/ButtonSubmit.vue'
-import FormError from '../ui/FormError.vue'
-import { insertEnvelope } from '@/services/envelopes'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import InputText from '@/components/ui/InputText.vue'
+import InputNumber from '@/components/ui/InputNumber.vue'
+import ButtonSubmit from '@/components/ui/ButtonSubmit.vue'
+import FormError from '@/components/ui/FormError.vue'
+import { envelopesService } from '@/services/envelopes'
+import type { TablesInsert } from '@/types/supabase.types'
 
 interface FormValues {
   name: string
-  amount: string
+  amount: number
 }
 
-enum RequestState {
-  Idle = 'idle',
-  Pending = 'pending',
-  Success = 'success',
-  Error = 'error',
-}
-
-const error = ref('')
-const insertRequestState = ref<RequestState>(RequestState.Idle)
-
-const formValues = reactive<FormValues>({
+const router = useRouter()
+const formValues = ref<FormValues>({
   name: '',
-  amount: '',
+  amount: 0,
 })
+const error = ref<string | null>(null)
+const loading = ref(false)
 
-function prepareValuesForSave(formValues: FormValues) {
-  const values = {
-    name: formValues.name,
-    amount: parseFloat(formValues.amount),
-  }
-  return values
-}
-
-const handleSubmit = async () => {
-  const values = prepareValuesForSave(formValues)
+async function handleSubmit() {
   try {
-    insertRequestState.value = RequestState.Pending
-    error.value = ''
+    loading.value = true
+    error.value = null
 
-    const result = await insertEnvelope(values)
-
-    if (result.data && result.data.length > 0) {
-      const newEnvelope = result.data[0]
-      console.log('Enveloppe créée:', newEnvelope)
-      insertRequestState.value = RequestState.Success
-    } else {
-      throw new Error('Aucune donnée retournée')
+    const values: TablesInsert<'envelopes'> = {
+      name: formValues.value.name,
+      amount: formValues.value.amount,
     }
-  } catch (err) {
-    insertRequestState.value = RequestState.Error
-    console.error("Erreur lors de l'ajout de l'enveloppe:", err)
-    error.value = "Une erreur est survenue lors de l'enregistrement de l'enveloppe"
+
+    await envelopesService.create(values)
+    router.push('/')
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Une erreur est survenue'
+  } finally {
+    loading.value = false
   }
 }
 </script>

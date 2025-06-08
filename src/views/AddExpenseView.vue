@@ -6,5 +6,5 @@
 </template>
 
 <script setup lang="ts">
-import ExpenseForm from '../components/forms/ExpenseForm.vue'
+import ExpenseForm from '@/components/forms/ExpenseForm.vue'
 </script>

@@ -1,13 +1,9 @@
 <script setup lang="ts">
-interface Props {
-  error: string
-}
-
-defineProps<Props>()
+defineProps<{
+  error: string | null
+}>()
 </script>
 
 <template>
-  <div v-if="error" class="mt-4 p-4 bg-red-100 text-red-700 rounded-md">
-    {{ error }}
-  </div>
+  <p v-if="error" class="text-red-500 text-sm mt-2">{{ error }}</p>
 </template>

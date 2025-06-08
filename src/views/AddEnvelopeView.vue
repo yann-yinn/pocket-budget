@@ -8,5 +8,5 @@
 </template>
 
 <script setup lang="ts">
-import EnvelopeForm from '../components/forms/EnvelopeForm.vue'
+import EnvelopeForm from '@/components/forms/EnvelopeForm.vue'
 </script>

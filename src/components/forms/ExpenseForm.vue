@@ -5,26 +5,18 @@
         <template #label>Montant</template>
       </InputNumber>
 
-      <InputText v-model="formValues.date" required placeholder="Date">
+      <InputText v-model="formValues.date" required type="date" placeholder="Date">
         <template #label>Date</template>
       </InputText>
 
-      <InputText
-        v-model="formValues.envelope_id"
-        required
-        placeholder="Identifiant de la enveloppe"
-      >
-        <template #label>Identifiant de la enveloppe</template>
-      </InputText>
-
-      <ButtonSubmit :loading="loading" />
+      <ButtonSubmit :loading="saveRequest.loading.value" />
     </div>
   </form>
-  <FormError :error="error" />
+  <FormError :error="saveRequest.error.value" />
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import InputText from '@/components/ui/InputText.vue'
 import InputNumber from '@/components/ui/InputNumber.vue'
@@ -32,6 +24,7 @@ import ButtonSubmit from '@/components/ui/ButtonSubmit.vue'
 import FormError from '@/components/ui/FormError.vue'
 import { expensesService } from '@/services/expenses'
 import type { TablesInsert } from '@/types/supabase.types'
+import useAsync from '@/composables/useAsync'
 
 interface FormValues {
   amount: number
@@ -40,31 +33,31 @@ interface FormValues {
 }
 
 const router = useRouter()
-const formValues = ref<FormValues>({
-  amount: 0,
-  date: new Date().toISOString().split('T')[0],
-  envelope_id: '',
-})
-const error = ref<string | null>(null)
-const loading = ref(false)
+const formValues = reactive<FormValues>(initFormValues())
+const saveRequest = useAsync()
+
+function initFormValues() {
+  return {
+    amount: 0,
+    date: new Date().toISOString().split('T')[0],
+    envelope_id: '',
+  }
+}
+
+function prepareValuesForSaving(formValues: FormValues) {
+  const values: TablesInsert<'expenses'> = {
+    amount: formValues.amount,
+    date: formValues.date,
+    envelope_id: formValues.envelope_id,
+  }
+  return values
+}
 
 async function handleSubmit() {
-  try {
-    loading.value = true
-    error.value = null
-
-    const values: TablesInsert<'expenses'> = {
-      amount: formValues.value.amount,
-      date: formValues.value.date,
-      envelope_id: formValues.value.envelope_id,
-    }
-
-    await expensesService.create(values)
+  const expense = prepareValuesForSaving(formValues)
+  const data = await saveRequest.execute(() => expensesService.create(expense))
+  if (data) {
     router.push('/')
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Une erreur est survenue'
-  } finally {
-    loading.value = false
   }
 }
 </script>

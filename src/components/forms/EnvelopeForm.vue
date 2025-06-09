@@ -10,10 +10,6 @@
       </InputNumber>
 
       <ButtonSubmit :loading="saveRequest.loading.value" />
-
-      <pre>
-        {{ saveRequest }}
-      </pre>
     </div>
   </form>
   <FormError :error="saveRequest.error.value" />

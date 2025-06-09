@@ -1,5 +1,6 @@
 import { supabase } from '@/utils/supabase'
 import type { TablesInsert, Tables } from '@/types/supabase.types'
+import { isHttpErrorStatus } from '@/utils/helpers'
 
 type Envelope = Tables<'envelopes'>
 type EnvelopeInsert = TablesInsert<'envelopes'>
@@ -34,14 +35,16 @@ export const envelopesService = {
   },
 
   async create(envelope: EnvelopeInsert) {
-    const { data, error } = await supabase
+    const result = await supabase
       .from('envelopes')
       .insert(envelope)
       .select()
       .single()
-
-    if (error) throw error
-    return data as Envelope
+    if (isHttpErrorStatus(result.status)) {
+      throw "Supabase: Erreur lors de l'appel du serveur, code HTTP: " + result.status + result.statusText
+    }
+    if (result.error) throw result.error;
+    return result.data as Envelope
   },
 
   async update(id: string, envelope: Partial<EnvelopeInsert>) {

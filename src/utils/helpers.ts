@@ -3,6 +3,9 @@
  * Garantit toujours une string, sans jamais throw à son tour.
  */
 export function extractErrorMessage(err: unknown): string {
+  if (import.meta.env.DEV) {
+    console.log('extractErrorMessage', err)
+  }
   // 1. Cas typique : une vraie instance de Error (Error, TypeError, etc.)
   if (err instanceof Error) {
     return err.message || err.toString()
@@ -47,4 +50,10 @@ export function extractErrorMessage(err: unknown): string {
   } catch {
     return '[Unknown error of unstringifiable type]'
   }
+}
+
+export function isHttpErrorStatus(status: number): boolean {
+  // Convertit le code en chaîne, puis regarde si le premier caractère est '4' ou '5'
+  const firstDigit = status.toString()[0]
+  return firstDigit === '4' || firstDigit === '5'
 }

@@ -9,51 +9,79 @@
         <template #label>Montant</template>
       </InputNumber>
 
-      <ButtonSubmit :loading="loading" />
+      <ButtonSubmit :loading="saveRequest.isLoading.value" />
+
+      <pre>
+        {{ saveRequest }}
+      </pre>
     </div>
   </form>
-  <FormError :error="error" />
+  <FormError :error="saveRequest.error.value" />
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive } from 'vue'
 import InputText from '@/components/ui/InputText.vue'
 import InputNumber from '@/components/ui/InputNumber.vue'
 import ButtonSubmit from '@/components/ui/ButtonSubmit.vue'
 import FormError from '@/components/ui/FormError.vue'
 import { envelopesService } from '@/services/envelopes'
 import type { TablesInsert } from '@/types/supabase.types'
+import { extractErrorMessage } from '@/utils/helpers'
 
 interface FormValues {
   name: string
   amount: number
 }
 
-const router = useRouter()
-const formValues = ref<FormValues>({
-  name: '',
-  amount: 0,
-})
-const error = ref<string | null>(null)
-const loading = ref(false)
+const formValues = reactive<FormValues>(initFormValues())
+
+const saveRequest = useAsync()
+console.log('saveRequest', saveRequest)
+
+function initFormValues() {
+  return {
+    name: '',
+    amount: 0,
+  }
+}
+
+function prepareValuesForSaving(formValues: FormValues) {
+  const values: TablesInsert<'envelopes'> = {
+    name: formValues.name,
+    amount: formValues.amount,
+  }
+  return values
+}
 
 async function handleSubmit() {
-  try {
-    loading.value = true
+  const envelope = prepareValuesForSaving(formValues)
+  const data = await saveRequest.execute(() => envelopesService.create(envelope))
+  console.log(data)
+}
+
+function useAsync() {
+  const isLoading = ref(false)
+  const error = ref<string | null>(null)
+
+  async function execute<T>(promiseFn: () => Promise<T>) {
+    let data: T | null = null
+    isLoading.value = true
     error.value = null
-
-    const values: TablesInsert<'envelopes'> = {
-      name: formValues.value.name,
-      amount: formValues.value.amount,
+    try {
+      data = await promiseFn()
+    } catch (err) {
+      error.value = extractErrorMessage(err)
+    } finally {
+      isLoading.value = false
     }
+    return data
+  }
 
-    await envelopesService.create(values)
-    router.push('/')
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Une erreur est survenue'
-  } finally {
-    loading.value = false
+  return {
+    isLoading,
+    error,
+    execute,
   }
 }
 </script>

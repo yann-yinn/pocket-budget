@@ -29,7 +29,6 @@ import useAsync from '@/composables/useAsync'
 interface FormValues {
   amount: number
   date: string
-  envelope_id: string
 }
 
 const router = useRouter()
@@ -40,7 +39,6 @@ function initFormValues() {
   return {
     amount: 0,
     date: new Date().toISOString().split('T')[0],
-    envelope_id: '',
   }
 }
 
@@ -48,7 +46,6 @@ function prepareValuesForSaving(formValues: FormValues) {
   const values: TablesInsert<'expenses'> = {
     amount: formValues.amount,
     date: formValues.date,
-    envelope_id: formValues.envelope_id,
   }
   return values
 }
@@ -56,6 +53,7 @@ function prepareValuesForSaving(formValues: FormValues) {
 async function handleSubmit() {
   const expense = prepareValuesForSaving(formValues)
   const data = await saveRequest.execute(() => expensesService.create(expense))
+  console.log('data', data)
   if (data) {
     router.push('/')
   }

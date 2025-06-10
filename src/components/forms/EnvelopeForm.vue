@@ -17,6 +17,7 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import InputText from '@/components/ui/InputText.vue'
 import InputNumber from '@/components/ui/InputNumber.vue'
 import ButtonSubmit from '@/components/ui/ButtonSubmit.vue'
@@ -24,19 +25,27 @@ import FormError from '@/components/ui/FormError.vue'
 import { envelopesService } from '@/services/envelopes'
 import type { TablesInsert } from '@/types/supabase.types'
 import useAsync from '@/composables/useAsync'
+import type { Tables } from '@/types/supabase.types'
+
+const props = defineProps<{
+  envelope?: Tables<'envelopes'>
+}>()
+
+console.log('props', props)
 
 interface FormValues {
   name: string
   amount: number
 }
 
-const formValues = reactive<FormValues>(initFormValues())
+const router = useRouter()
+const formValues = reactive<FormValues>(initFormValues(props.envelope))
 const saveRequest = useAsync()
 
-function initFormValues() {
+function initFormValues(envelope?: Tables<'envelopes'>): FormValues {
   return {
-    name: '',
-    amount: 0,
+    name: envelope?.name || '',
+    amount: envelope?.amount || 0,
   }
 }
 
@@ -51,6 +60,8 @@ function prepareValuesForSaving(formValues: FormValues) {
 async function handleSubmit() {
   const envelope = prepareValuesForSaving(formValues)
   const data = await saveRequest.execute(() => envelopesService.create(envelope))
-  console.log('data', data)
+  if (data) {
+    router.push('/envelopes')
+  }
 }
 </script>

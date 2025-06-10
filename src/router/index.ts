@@ -19,6 +19,16 @@ const router = createRouter({
       name: 'add-envelope',
       component: () => import('../views/AddEnvelopeView.vue'),
     },
+    {
+      path: '/envelopes',
+      name: 'envelopes',
+      component: () => import('../views/EnvelopesView.vue'),
+    },
+    {
+      path: '/envelopes/:id/edit',
+      name: 'envelopeEdit',
+      component: () => import('../views/EnvelopeEditView.vue'),
+    },
   ],
 })
 

@@ -16,6 +16,13 @@ import { RouterLink, RouterView } from 'vue-router'
               Accueil
             </RouterLink>
             <RouterLink
+              to="/envelopes"
+              class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+              active-class="bg-gray-100 text-gray-900"
+            >
+              Enveloppes
+            </RouterLink>
+            <RouterLink
               to="/add-expense"
               class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
               active-class="bg-gray-100 text-gray-900"

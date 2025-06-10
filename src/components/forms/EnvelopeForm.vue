@@ -31,8 +31,6 @@ const props = defineProps<{
   envelope?: Tables<'envelopes'>
 }>()
 
-console.log('props', props)
-
 interface FormValues {
   name: string
   amount: number
@@ -58,8 +56,16 @@ function prepareValuesForSaving(formValues: FormValues) {
 }
 
 async function handleSubmit() {
-  const envelope = prepareValuesForSaving(formValues)
-  const data = await saveRequest.execute(() => envelopesService.create(envelope))
+  const values = prepareValuesForSaving(formValues)
+  let data = null
+
+  if (props.envelope) {
+    const envelopeId = props.envelope.id.toString()
+    data = await saveRequest.execute(() => envelopesService.update(envelopeId, values))
+  } else {
+    data = await saveRequest.execute(() => envelopesService.create(values))
+  }
+
   if (data) {
     router.push('/envelopes')
   }

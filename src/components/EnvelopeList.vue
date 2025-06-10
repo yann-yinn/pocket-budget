@@ -8,7 +8,7 @@
       <p class="text-red-500">{{ fetchRequest.error.value }}</p>
     </div>
 
-    <EnvelopeListItems v-else :envelopes="envelopes" @delete="$emit('delete', $event)" />
+    <EnvelopeListItems v-else :envelopes="envelopes" @archived="fetchEnvelopes" />
   </div>
 </template>
 
@@ -31,8 +31,4 @@ async function fetchEnvelopes() {
 }
 
 onMounted(fetchEnvelopes)
-
-defineEmits<{
-  (e: 'delete', envelope: Envelope): void
-}>()
 </script>

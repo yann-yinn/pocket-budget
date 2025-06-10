@@ -11,28 +11,28 @@ export type Database = {
     Tables: {
       envelopes: {
         Row: {
-          amount: number | null
-          archived: boolean | null
+          amount: number
+          archived: boolean
           created_at: string
           description: string | null
           id: string
-          name: string | null
+          name: string
         }
         Insert: {
-          amount?: number | null
-          archived?: boolean | null
+          amount: number
+          archived?: boolean
           created_at?: string
           description?: string | null
           id?: string
-          name?: string | null
+          name: string
         }
         Update: {
-          amount?: number | null
-          archived?: boolean | null
+          amount?: number
+          archived?: boolean
           created_at?: string
           description?: string | null
           id?: string
-          name?: string | null
+          name?: string
         }
         Relationships: []
       }
@@ -97,7 +97,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      status: "LIVE" | "ARCHIVED"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -212,6 +212,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      status: ["LIVE", "ARCHIVED"],
+    },
   },
 } as const

@@ -10,6 +10,7 @@ export const envelopesService = {
     const { data, error } = await supabase
       .from('envelopes')
       .select('*')
+      .eq('archived', false)
       .order('name')
 
     if (error) throw error

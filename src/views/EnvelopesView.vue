@@ -15,11 +15,9 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
 import EnvelopeList from '@/components/EnvelopeList.vue'
+import { RouterLink } from 'vue-router'
 import type { Tables } from '@/types/supabase.types'
-
-const router = useRouter()
 
 function handleEdit(envelope: Tables<'envelopes'>) {
   console.log('Edit envelope:', envelope)
